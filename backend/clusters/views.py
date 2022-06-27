@@ -6,8 +6,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
-from .models import Cluster
-from .serializer import ClusterSerializer
+from .models import Cluster,Application,CloudProvider,Node
+from .serializer import CloudProviderSerializer, ClusterSerializer,ApplicationSerializer,NodeSerializer
 
 class ClusterListApiView(APIView):
     # add permission to check if user is authenticated
@@ -84,5 +84,23 @@ class ClusterAllListApiView(APIView):
     def get(self, request,*args,**kwargs):
         clusters = Cluster.objects.all() 
         serializer = ClusterSerializer(clusters, many=True)
+
+        return Response(serializer.data, status = status.HTTP_200_OK)
+
+class ApplicationAllListApiView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request,*args,**kwargs):
+        applications = Application.objects.all() 
+        serializer = ApplicationSerializer(applications, many=True)
+
+        return Response(serializer.data, status = status.HTTP_200_OK)
+
+class CloudProviderAllListApiView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request,*args,**kwargs):
+        cloudProviders = CloudProvider.objects.all() 
+        serializer = CloudProviderSerializer(cloudProviders, many=True)
 
         return Response(serializer.data, status = status.HTTP_200_OK)
