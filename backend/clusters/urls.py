@@ -1,16 +1,16 @@
 #from django.conf.urls import url
+from django.db import router
 from django.urls import path,include
-from .views import(
-    ClusterListApiView,
-    ClusterDetailApiView,
-    ClusterAllListApiView,
-    CloudProviderAllListApiView,
-    ApplicationAllListApiView)
+from rest_framework.routers import DefaultRouter
+from .views import(ClusterViewSet, CloudProviderViewSet, ApplicationViewSet, NodesViewSet, UserViewSet)
+
+router = DefaultRouter()
+router.register(r'all', ClusterViewSet, basename="clusters")
+router.register(r'cloudProviders', CloudProviderViewSet, basename="cloudProviders")
+router.register(r'applications', ApplicationViewSet, basename="applications")
+router.register(r'users', UserViewSet, basename="users")
+router.register(r'nodes', NodesViewSet, basename="nodes")
 
 urlpatterns = [
-    path('api', ClusterListApiView.as_view()),
-    path('api/<int:cluster_id>/', ClusterDetailApiView.as_view()),
-    path('api/all', ClusterAllListApiView.as_view()),
-    path('api/cloud/all', CloudProviderAllListApiView.as_view()),
-    path('api/apps/all',ApplicationAllListApiView.as_view()),
+    path('',include(router.urls)),
 ]

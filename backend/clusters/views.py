@@ -1,14 +1,11 @@
-from functools import partial
-from msilib.schema import RemoveRegistry
-from urllib import response
-from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework import permissions
+from rest_framework import status, permissions, viewsets
+from django.contrib.auth.models import User
 from .models import Cluster,Application,CloudProvider,Node
-from .serializer import CloudProviderSerializer, ClusterSerializer,ApplicationSerializer,NodeSerializer
+from .serializer import CloudProviderSerializer, ClusterSerializer,ApplicationSerializer,NodeSerializer, UserSerializer, ClusterDetailedSerializer
 
+'''
 class ClusterListApiView(APIView):
     # add permission to check if user is authenticated
     permission_classes = [permissions.IsAuthenticated]
@@ -86,21 +83,47 @@ class ClusterAllListApiView(APIView):
         serializer = ClusterSerializer(clusters, many=True)
 
         return Response(serializer.data, status = status.HTTP_200_OK)
+'''
 
-class ApplicationAllListApiView(APIView):
+class ApplicationViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Application.objects.all()
+    serializer_class = ApplicationSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request,*args,**kwargs):
-        applications = Application.objects.all() 
-        serializer = ApplicationSerializer(applications, many=True)
-
-        return Response(serializer.data, status = status.HTTP_200_OK)
-
-class CloudProviderAllListApiView(APIView):
+class CloudProviderViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = CloudProvider.objects.all()
+    serializer_class = CloudProviderSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request,*args,**kwargs):
-        cloudProviders = CloudProvider.objects.all() 
-        serializer = CloudProviderSerializer(cloudProviders, many=True)
+class ClusterViewSet(viewsets.ModelViewSet):
+    queryset = Cluster.objects.all()
+    serializer_class = ClusterSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-        return Response(serializer.data, status = status.HTTP_200_OK)
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+        
+    def destroy(self, request,*args,**kwargs):
+        cluster_instance = self.get_object()
+        cluster_instance.is_active = not cluster_instance.is_active
+        cluster_instance.save()
+        return Response(
+            {"rest": "Cluster deleted successfully"},
+            status = status.HTTP_204_NO_CONTENT
+        )
+    
+    def get_serializer_class(self):
+        print(self.action)
+        if(self.action == "list" or self.action == "retrieve"):
+            return ClusterDetailedSerializer
+        else:
+            return ClusterSerializer
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+class NodesViewSet(viewsets.ModelViewSet):
+    queryset = Node.objects.all()
+    serializer_class = NodeSerializer
+    permission_classes = [permissions.IsAuthenticated]

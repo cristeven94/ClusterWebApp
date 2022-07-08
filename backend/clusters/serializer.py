@@ -1,20 +1,21 @@
 from dataclasses import field
-from rest_framework import serializers
-from .models import Cluster,CloudProvider,Application,Node
+from tkinter import ON
+from rest_framework import serializers,reverse
+from django.contrib.auth.models import User
+from .models import Cluster,CloudProvider,Application,Node,OnQueue
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "username"
+        ]
 
 class ClusterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cluster
-        fields = [
-            "id",
-            "cluster_name",
-            "agents_quantity",
-            "agents_memory",
-            "date_created",
-            "is_running",
-            "is_active",
-            "user"
-            ]
+        fields = "__all__"
 
 class CloudProviderSerializer(serializers.ModelSerializer):
     class Meta:
@@ -32,14 +33,32 @@ class ApplicationSerializer(serializers.ModelSerializer):
             "application_name"
         ]
 
+class ClusterDetailedSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only = True)
+    cloud_provider_id = CloudProviderSerializer(read_only=True)
+    application_id = ApplicationSerializer(read_only = True)
+
+    nodes = serializers.SerializerMethodField()
+
+    def get_nodes(self,object):
+        return NodeSerializer(Node.objects.filter(cluster_id__id = object.id), many= True).data
+
+    class Meta:
+        model = Cluster
+        fields = "__all__"
+
 class NodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Node
-        field = [
-            "id",
-            "cluster_id",
-            "node_name",
-            "cpu_usage",
-            "ram_usage",
-            "is_active"
-        ]
+        fields = "__all__"
+
+class NodeDetailedSerializer(serializers.ModelSerializer):
+    cluster = ClusterSerializer(read_only= True)
+    class Meta:
+        model = Node
+        fields = "__all__"
+
+class OnQueueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OnQueue
+        fields = "__all__"
