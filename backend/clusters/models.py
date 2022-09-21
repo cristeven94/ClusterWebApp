@@ -24,7 +24,7 @@ class Application(models.Model):
 class Cluster(models.Model):
     
     #Foreign Keys
-    user = models.ForeignKey(User, on_delete= models.CASCADE, blank=True)
+    user = models.ForeignKey(User, on_delete= models.CASCADE, blank=True, default="admin")
     cloud_provider_id = models.ForeignKey(CloudProvider, on_delete= models.CASCADE)
     application_id = models.ForeignKey(Application, on_delete= models.CASCADE)
 

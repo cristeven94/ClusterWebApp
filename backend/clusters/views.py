@@ -105,6 +105,12 @@ class ClusterViewSet(viewsets.ModelViewSet):
         
     def destroy(self, request,*args,**kwargs):
         cluster_instance = self.get_object()
+        print(cluster_instance.is_active)
+        if cluster_instance.is_active == False:
+            return Response(
+                {"rest": "Cluster was already deleted"},
+                status = status.HTTP_404_NOT_FOUND
+            )
         cluster_instance.is_active = not cluster_instance.is_active
         cluster_instance.save()
         return Response(
@@ -118,6 +124,15 @@ class ClusterViewSet(viewsets.ModelViewSet):
             return ClusterDetailedSerializer
         else:
             return ClusterSerializer
+
+    def partial_update(self, request, *args, **kwargs):
+        cluster_instance = self.get_object()
+        cluster_instance.is_running = not cluster_instance.is_running
+        cluster_instance.save()
+        return Response(
+            {"is_running": cluster_instance.is_running},
+            status = status.HTTP_200_OK
+        )
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
