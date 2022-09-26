@@ -102,6 +102,9 @@ class ClusterViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+        return Response(
+            status = status.HTTP_201_CREATED
+        )
         
     def destroy(self, request,*args,**kwargs):
         cluster_instance = self.get_object()

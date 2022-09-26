@@ -38,18 +38,13 @@ class Cluster(models.Model):
     def __str__(self):
         return self.cluster_name
 
-@receiver(post_save,sender = Cluster)
-def create_onqueue(instance,**kwargs):
-    if("created" in kwargs):
-        onqueue = OnQueue()
-        onqueue.cluster_id = instance
-        onqueue.save()
+
 
 class Node(models.Model):
     cluster_id = models.ForeignKey(Cluster, on_delete = models.CASCADE)
     node_name = models.CharField(max_length=50)
     cpu_usage = models.FloatField(default=0)
-    ram_usage = models.IntegerField()
+    ram_usage = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
