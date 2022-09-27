@@ -10,4 +10,7 @@ def create_nodes(sender, instance, created, **kwargs):
     if created: 
         for i in range(cluster.agents_quantity):
             if created:
-                Node.objects.create(cluster_id = instance, node_name = cluster.cluster_name+f"_node_{i}")
+                Node.objects.create(
+                    cluster_id = instance, 
+                    node_name = cluster.cluster_name+f"_node_{i}",
+                    cpu_usage = cluster.agents_memory)
