@@ -105,6 +105,9 @@ class ClusterViewSet(viewsets.ModelViewSet):
         return Response(
             status = status.HTTP_201_CREATED
         )
+
+    def get_queryset(self):
+        return Cluster.objects.filter(is_active=True)
         
     def destroy(self, request,*args,**kwargs):
         cluster_instance = self.get_object()
