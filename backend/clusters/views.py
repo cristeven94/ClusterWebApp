@@ -1,11 +1,10 @@
-import time
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions, viewsets
 from django.contrib.auth.models import User
 from .models import Cluster,Application,CloudProvider,Node
 from .serializer import CloudProviderSerializer, ClusterSerializer,ApplicationSerializer,NodeSerializer, UserSerializer, ClusterDetailedSerializer
+from clusters.utils import *
 
 class ApplicationViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Application.objects.all()
@@ -24,7 +23,7 @@ class ClusterViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-        time.sleep(10)
+        deploy_cluster()
         return Response(
             status = status.HTTP_201_CREATED
         )
@@ -34,6 +33,7 @@ class ClusterViewSet(viewsets.ModelViewSet):
         
     def destroy(self, request,*args,**kwargs):
         cluster_instance = self.get_object()
+        destroy_cluster()
         print(cluster_instance.is_active)
         if cluster_instance.is_active == False:
             return Response(

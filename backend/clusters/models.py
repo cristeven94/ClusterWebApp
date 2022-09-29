@@ -32,7 +32,8 @@ class Cluster(models.Model):
     agents_quantity = models.IntegerField(default=0)
     agents_memory = models.IntegerField(default=1)
     date_created = models.DateField(auto_now_add = True, auto_now = False, blank= True)
-    is_running = models.BooleanField(default=False)
+    app_url = models.CharField(max_length=200, default='http://127.0.0.1:8080/ui')
+    is_running = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
